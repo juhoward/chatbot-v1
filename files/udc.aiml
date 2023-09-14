@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml version="2.0">
+
+<category>
+    <pattern>*</pattern>
+    <template>
+        <random>
+            <li>I don't have a response for that. Can you try again?</li>
+            <li>Can you rephrase that?</li>
+            <li>I'm not sure what you mean. Try again?</li>
+        </random>
+    </template>
+</category>
+
+
+</aiml>

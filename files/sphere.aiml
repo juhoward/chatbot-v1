@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml version="2.0">
+<!-- data from the auto refraction -->
+<set name="l-sphere">0</set>
+<set name="l-cylinder">0</set>
+<set name="l-axis">0</set>
+<set name="l-prism">0</set>
+<set name="l-add">0</set>
+<set name="r-sphere">0</set>
+<set name="r-cylinder">0</set>
+<set name="r-axis">0</set>
+<set name="r-prism">0</set>
+<set name="r-add">0</set>
+<set name="r-eye">true</set>
+<set name="l-eye">false</set>
+
+<!-- sphere refinement variables -->
+<set name="better">false</set>
+<set name="was-better">false</set>
+<set name="add-quarter-neg">false</set>
+<set name="add-quarter-pos">false</set>
+
+<!-- initial messaging -->
+
+<category>
+    <pattern>HELLO</pattern>
+    <template><srai>greeting</srai></template>
+</category>
+
+<category>
+    <pattern>HEY</pattern>
+    <template><srai>greeting</srai></template>
+</category>
+
+<category>
+    <pattern>HI</pattern>
+    <template><srai>greeting</srai></template>
+</category>
+
+<category>
+    <pattern>GREETING</pattern>
+    <template>
+        Hi, I'm Oscar, I'll provide you guidance as you complete your subjective refraction.
+        <br/>Can I get your first name?
+    </template>
+</category>
+
+<!-- get name -->
+<category>
+    <that>_ FIRST NAME</that>
+    <pattern>*</pattern>
+    <template>
+    <think>
+        <set name="fname"><formal><star index="1"/></formal></set>
+    </think> 
+        Ok <get name="fname"/>, can I get your last name?
+    </template>
+</category>
+
+<!-- start visual acuity exam, occlude left eye -->
+<category>
+    <that>_ LAST NAME</that>
+    <pattern>*</pattern>
+    <template>
+        <think>
+            <set name="lname"><formal><star index="1"/></formal></set>
+            <set name="was-better">false</set>
+        </think>
+        <get name="fname" /> <get name="lname"/>, let's get started.
+        <br/>
+        <br/>
+        <get name="fname" />, cover your left eye.<br/>
+        Say "It's Covered" when you are ready.
+    </template>
+</category>
+
+<!-- right eye fogged -->
+<category>
+    <pattern>_ COVERED</pattern>
+    <template>
+        Ok, next, I'm going to blur your vision. <br/>
+        Say "it's blurry now" when the chart is blurred.
+    </template>
+</category>
+
+<!-- right eye fogged, add -.25 sphere-->
+<category>
+    <pattern>_ BLURRY NOW</pattern>
+    <template>
+        Good, the chart looks blurry.<br/> 
+        I'm going to make a change.<br/> 
+        Respond with "it's better" or "it's worse."<br/>
+        <think>
+            <set name="first-attempt">true</set>
+            <set name="add-quarter-neg">true</set>
+        </think>
+    </template>
+</category>
+
+<!-- positive patient response -->
+<category>
+    <pattern>_ BETTER</pattern>
+    <template>
+        <think>
+            <set name="better">true</set>
+        </think>
+        <condition name="was-better">
+            <li value="true">
+                <condition name="add-quarter-neg">
+                    <li value="true">
+                        Let's keep going.<br/>
+                        Let's try adding another negative quarter diopter.<br/>
+                        Respond with "it's better" or "it's worse."<br/>
+                    </li>
+                    <li value="false">
+                        Let's try adding another quarter diopter.<br/>
+                        Respond with "it's better" or "it's worse."<br/>
+                    </li>
+                </condition>
+
+            </li>
+            <li value="false">
+                <think>
+                    <set name="was-better">true</set>
+                </think>
+                An improvement!<br/>
+                <condition name="add-quarter-neg">
+                    <li value="true">
+                        Let's try adding a negative quarter diopter.<br/>
+                        Respond with "it's better" or "it's worse."<br/>
+                    </li>
+                    <li value="false">
+                        Let's try adding a quarter diopter.<br/>
+                        Respond with "it's better" or "it's worse."<br/>
+                    </li>
+                </condition>
+
+            </li>
+        </condition>
+
+    </template>
+</category>
+
+<!-- negative patient response -->
+<category>
+    <pattern>_ WORSE</pattern>
+    <template>
+        <think>
+            <set name="better">false</set>
+        </think>
+        It's worse, no problem.<br/>
+            <condition name="was-better">
+                <li value="true">
+                    <think>
+                        <set name="add-quarter-neg">false</set>
+                        <set name="add-quarter-pos">true</set>
+                        <set name="was-better">false</set>
+                    </think>
+                    I'll take that last adjustment off and move on.
+                </li>
+                <li value="false">
+                    <think>
+                        <set name="add-quarter-neg">false</set>
+                        <set name="add-quarter-pos">true</set>
+
+                    </think>
+                    <get name="fname"/>, let's try adding a quarter diopter.<br/>
+                    Respond with "it's better" or "it's worse."<br/>
+                </li>
+            </condition>
+    </template>
+</category>
+
+<category>
+    <pattern>_ LETTERS ON THE CHART</pattern>
+    <template>
+        Ok, say "I see" and tell me the letters you see on the chart.
+    </template>
+</category>
+</aiml>
